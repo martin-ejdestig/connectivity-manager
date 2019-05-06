@@ -244,7 +244,7 @@ namespace ConnectivityManager::Daemon
         return map_.find(object) != map_.cend();
     }
 
-    Manager::PendingConnect *Manager::PendingConnects::find(
+    Manager::PendingConnects::PendingConnect *Manager::PendingConnects::find(
         const Glib::DBusObjectPathString &object)
     {
         auto i = map_.find(object);

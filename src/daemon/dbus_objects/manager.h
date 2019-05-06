@@ -59,19 +59,12 @@ namespace ConnectivityManager::Daemon
         Glib::ustring WiFiHotspotPassphrase_get() override;
 
     private:
-        using UserInputAgentProxy = com::luxoft::ConnectivityManager::UserInputAgentProxy;
-
-        struct PendingConnect
-        {
-            std::optional<MethodInvocation> invocation;
-
-            Glib::DBusObjectPathString user_input_agent_path;
-            DBusNameWatcher user_input_agent_name_watcher;
-
-            Common::Credentials::Requested credentials_requested;
-            Backend::RequestCredentialsFromUserReply credentials_reply;
-        };
-
+        // Information stored for calls to Connect().
+        //
+        // Connect() should not return with result to caller until connect either succeeds or fails.
+        // MethodInvocation is stored so it can be used when Backend returns with result. Also
+        // stores path to com.luxoft.ConnectivityManager.UserInputAgent object provided by client in
+        // Connect() call and monitors if client disappears from the bus.
         class PendingConnects
         {
         public:
@@ -95,6 +88,19 @@ namespace ConnectivityManager::Daemon
                                      Backend::RequestCredentialsFromUserReply &&callback);
 
         private:
+            using UserInputAgentProxy = com::luxoft::ConnectivityManager::UserInputAgentProxy;
+
+            struct PendingConnect
+            {
+                std::optional<MethodInvocation> invocation;
+
+                Glib::DBusObjectPathString user_input_agent_path;
+                DBusNameWatcher user_input_agent_name_watcher;
+
+                Common::Credentials::Requested credentials_requested;
+                Backend::RequestCredentialsFromUserReply credentials_reply;
+            };
+
             PendingConnect *find(const Glib::DBusObjectPathString &object);
 
             void remove(const Glib::DBusObjectPathString &object);
