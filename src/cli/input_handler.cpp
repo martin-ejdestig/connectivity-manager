@@ -69,17 +69,15 @@ namespace ConnectivityManager::Cli
     bool InputHandler::register_user_input_agent(
         const Glib::RefPtr<Gio::DBus::Connection> &connection)
     {
-        if (user_input_agent_object_id_ == 0) {
-            user_input_agent_object_id_ =
-                user_input_agent_.register_object(connection, user_input_agent_object_path());
-        }
+        if (user_input_agent_.usage_count() == 0)
+            user_input_agent_.register_object(connection, user_input_agent_object_path());
 
-        return user_input_agent_object_id_ != 0;
+        return user_input_agent_.usage_count() != 0;
     }
 
     void InputHandler::run() const
     {
-        assert(user_input_agent_object_id_ != 0);
+        assert(user_input_agent_.usage_count() != 0);
 
         main_loop_->run();
     }

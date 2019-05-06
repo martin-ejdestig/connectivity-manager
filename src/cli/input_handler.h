@@ -60,7 +60,6 @@ namespace ConnectivityManager::Cli
         Glib::RefPtr<Glib::MainLoop> main_loop_ = Glib::MainLoop::create();
 
         UserInputAgent user_input_agent_;
-        guint user_input_agent_object_id_ = 0;
     };
 }
 
