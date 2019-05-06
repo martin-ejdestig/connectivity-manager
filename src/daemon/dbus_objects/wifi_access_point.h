@@ -20,6 +20,11 @@
 
 namespace ConnectivityManager::Daemon
 {
+    // Implementation of com.luxoft.ConnectivityManager.WiFiAccessPoint D-Bus interface.
+    //
+    // Exposed on bus under /com/luxoft/ConnectivityManager/WiFiAccessPoints/<id>. Id is just taken
+    // from Backend::WiFiAccessPoint since it is quaranteed to be unique and mapping from an object
+    // path to a Backend::WiFiAccessPoint does not require any extra state.
     class WiFiAccessPoint : public com::luxoft::ConnectivityManager::WiFiAccessPointStub
     {
     public:
