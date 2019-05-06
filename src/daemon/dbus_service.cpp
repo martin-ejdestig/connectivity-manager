@@ -28,7 +28,7 @@ namespace ConnectivityManager::Daemon
     DBusService::~DBusService()
     {
         unown_name();
-        wifi_access_points_changed_timeout_.disconnect();
+        wifi_access_points_throttle_set_property_timeout_.disconnect();
     }
 
     void DBusService::own_name()
@@ -108,14 +108,15 @@ namespace ConnectivityManager::Daemon
     void DBusService::wifi_access_points_changed()
     {
         constexpr unsigned int DELAY_SECONDS = 1;
+        constexpr bool REPEAT = false;
 
-        if (wifi_access_points_changed_timeout_.connected())
+        if (wifi_access_points_throttle_set_property_timeout_.connected())
             return;
 
-        wifi_access_points_changed_timeout_ = Glib::signal_timeout().connect_seconds(
+        wifi_access_points_throttle_set_property_timeout_ = Glib::signal_timeout().connect_seconds(
             [&] {
                 manager_.WiFiAccessPoints_set(wifi_access_point_paths_sorted());
-                return false;
+                return REPEAT;
             },
             DELAY_SECONDS);
     }

@@ -84,7 +84,7 @@ namespace ConnectivityManager::Daemon
         Manager manager_;
         std::map<WiFiAccessPoint::Id, std::unique_ptr<WiFiAccessPoint>> wifi_access_points_;
 
-        sigc::connection wifi_access_points_changed_timeout_; // TODO: Better name... and shorter?
+        sigc::connection wifi_access_points_throttle_set_property_timeout_;
     };
 }
 
