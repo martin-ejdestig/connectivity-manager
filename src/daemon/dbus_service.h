@@ -41,10 +41,9 @@ namespace ConnectivityManager::Daemon
     private:
         // Helper for listening to backend signals that disconnects automatically when destroyed.
         //
-        // Stored in an std::optional, see below, to handle the fact that DBusService should not
-        // listen to backend changes until bus has been acquired and all objects have been
-        // registered (stubs/objects can not handle being called until this has been done).
-        // Alternative would be to check this in each slot. More error prone.
+        // Stored in an std::optional to handle the fact that DBusService should not listen to
+        // backend changes until bus has been acquired and all objects have been registered
+        // (stubs/objects can not handle being called until this has been done).
         class BackendSignalHandler : public sigc::trackable
         {
         public:
