@@ -29,6 +29,23 @@ namespace ConnectivityManager::Daemon
     // Contains state, signals and helper methods for concrete backends to use to set state and emit
     // signals when state changes.
     //
+    // = Callbacks
+    //
+    // Callbacks are used to handle that connecting to a network should be asynchronous and are
+    // passed to *_connect() (currently only wifi_connect() exists but more will probably be added):
+    //
+    // - ConnectFinished: Called when connect requested has either succeeded or failed.
+    //
+    // - RequestCredentialsFromUser: Called when a connect request requires credentials to be
+    //   requested from user. E.g. a passphrase for a Wi-Fi access point needs to be entered.
+    //   See Common::Credentials::Requested for description of what to request.
+    //
+    // - RequestCredentialsFromUserReply: Passed to RequestCredentialsFromUser and should be called
+    //   when user has replied. If something fails this callback must be called with
+    //   Common::Credentials::NONE to notify the backend about the failure.
+    //
+    // = WiFi
+    //
     // WiFiStatus must be set to something other than UNAVAILABLE before calling any of the public
     // virtual wifi_* methods. A backend implementation should not do anything if this rule is not
     // followed and call site should be fixed.
@@ -36,6 +53,9 @@ namespace ConnectivityManager::Daemon
     // WiFiAccessPoint::Event::ADDED/REMOVED_ALL are used when WiFi is enabled/disabled to limit
     // signal emission. No WiFiAccessPoint is included in signal emission for these cases,
     // State.wifi.access_points should be used instead.
+    //
+    // Access points are stored in an unordered map (State::wifi::access_points) and are guaranteed
+    // to have a unique id that can be used to identifiy them when e.g. mapping to D-Bus objects.
     class Backend
     {
     public:
