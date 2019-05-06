@@ -16,11 +16,10 @@
 #include "common/dbus.h"
 
 // TODO: How to choose hidden AP for "connect"/"disconnect" from list shown by "status"?
-// - Trailing integer from D-Bus object path and set name to <Hidden X>? Bad to rely on format of
-//   D-Bus path and a bit convoluted to extract.
-// - Add a -h/--hidden option for "connect"/"disconnect" that prints hidden APs in order and lets
-//   user choose from list? Must make sure that correct hidden AP is referred to somehow at least.
-//   Probably best solution... to not rely on trailing id in object path.
+//       Could add an optiona called e.g. -c/--choose for connect/disconnect that prints list
+//       of AP:s in order returned by access_point_proxies() with each line in the format:
+//       <index + 1>) SSID or <Hidden> (+ details as for "status" now)
+//       And then prompt user for AP to connect to and accept both index (+1) and SSID.
 
 namespace ConnectivityManager::Cli
 {
@@ -148,26 +147,31 @@ namespace ConnectivityManager::Cli
 
     bool CommandWiFi::invoke()
     {
-        if (arguments_.subcommand == Subcommand::ENABLE)
+        switch (arguments_.subcommand) {
+        case Subcommand::ENABLE:
             return enable();
 
-        if (arguments_.subcommand == Subcommand::DISABLE)
+        case Subcommand::DISABLE:
             return disable();
 
-        if (arguments_.subcommand == Subcommand::STATUS)
+        case Subcommand::STATUS:
             return status();
 
-        if (arguments_.subcommand == Subcommand::CONNECT)
+        case Subcommand::CONNECT:
             return connect();
 
-        if (arguments_.subcommand == Subcommand::DISCONNECT)
+        case Subcommand::DISCONNECT:
             return disconnect();
 
-        if (arguments_.subcommand == Subcommand::ENABLE_HOTSPOT)
+        case Subcommand::ENABLE_HOTSPOT:
             return enable_hotspot();
 
-        if (arguments_.subcommand == Subcommand::DISABLE_HOTSPOT)
+        case Subcommand::DISABLE_HOTSPOT:
             return disable_hotspot();
+
+        case Subcommand::NONE:
+            break;
+        }
 
         return false;
     }
