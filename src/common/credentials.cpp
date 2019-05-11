@@ -36,16 +36,12 @@ namespace ConnectivityManager::Common
         std::optional<T> value_from_variant(const Glib::VariantBase &variant,
                                             const Glib::ustring &value_name)
         {
-            Glib::Variant<T> converted;
-
             try {
-                converted = Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant);
+                return Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant).get();
             } catch (const std::bad_cast &) {
                 g_warning("Unexpected type for %s in credentials D-Bus value", value_name.c_str());
-                return {};
             }
-
-            return converted.get();
+            return {};
         }
 
         std::optional<Credentials::Password> password_from_variant(const Glib::VariantBase &variant,
