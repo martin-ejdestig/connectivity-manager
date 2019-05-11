@@ -14,6 +14,8 @@
 #include <string>
 #include <tuple>
 
+#include "common/variant_get.h"
+
 namespace ConnectivityManager::Common
 {
     namespace
@@ -36,12 +38,12 @@ namespace ConnectivityManager::Common
         std::optional<T> value_from_variant(const Glib::VariantBase &variant,
                                             const Glib::ustring &value_name)
         {
-            try {
-                return Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant).get();
-            } catch (const std::bad_cast &) {
+            std::optional<T> ret = Common::variant_get<T>(variant);
+
+            if (!ret)
                 g_warning("Unexpected type for %s in credentials D-Bus value", value_name.c_str());
-            }
-            return {};
+
+            return ret;
         }
 
         std::optional<Credentials::Password> password_from_variant(const Glib::VariantBase &variant,
