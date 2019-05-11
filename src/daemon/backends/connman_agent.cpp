@@ -82,7 +82,8 @@ namespace ConnectivityManager::Daemon
                           name.c_str(),
                           variant.get_type_string().c_str());
             }
-            return {};
+
+            return default_value;
         }
 
         std::optional<Password> arguments_to_password(const Glib::ustring &name,
