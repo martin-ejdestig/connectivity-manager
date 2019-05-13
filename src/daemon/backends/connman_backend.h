@@ -26,16 +26,44 @@ namespace ConnectivityManager::Daemon
 {
     // Backend implementation for ConnMan.
     //
-    // Note that ConnMan uses strings in its D-Bus interface for SSID:s. Problematic since SSID:s
-    // may not neccessarily be UTF-8 (prior to the 2012 edition of the IEEE 802.11 standard) and it
-    // is not allowed to send invalid UTF-8 strings over D-Bus. Current approach is to handle this
-    // is to replace invalid UTF-8 bytes with Unicode replacement character (U+FFFD).
+    // See doc/overview-api.txt in the ConnMan repo for an overview of ConnMan's D-Bus API.
     //
-    // TODO: Document much more.
-    // - Overview of how all the ConnMan* classes interact.
-    // - Maybe move some documentation here from the other ConnMan* classes.
-    // - Limitation of only a single pending connect due to how services and agent work in ConnMan.
-    // - ...
+    // Short overview of classes used by ConnManBackend to interact with ConnMan (path to
+    // documentation in ConnMan repo in parenthesis if relevant):
+    //
+    // - ConnManManager (doc/manager-api.txt): Main entry point for accessing ConnMan over D-Bus.
+    //
+    // - ConnManTechnology (doc/technology-api.txt): Class for ConnMan technology objects on D-Bus.
+    //
+    // - ConnManService (doc/service-api.txt): Class for ConnMan services on D-Bus.
+    //
+    // - ConnManAgent (doc/agent-api.txt): D-Bus object called by ConnMan for passwords etc.
+    //
+    // - ConnManConnectQueue: Queued up connection requests if a connection is requested before
+    //   ConnManBackend is ready to call ConnMan or a connection is pending.
+    //
+    // ConnManBackend owns a ConnManManager that tries to contact ConnMan on creation and will
+    // signal to ConnManBackend when the ConnMan manager is available and disappears (e.g. the
+    // ConnMan process is stopped). ConnManManager will request all technologies and services when
+    // ConnMan is available on the bus and it will also listen for when technologies and services
+    // are added or removed.
+    //
+    // ConnManBackend will create (and has ownership of) ConnManTechnology and ConnManService
+    // instances and takes care of mapping ConnMan's technologies and services to Backend.
+    //
+    // ConnManAgent is registered with ConnMan as soon as ConnMan is available. If registration
+    // fails or ConnMan for some reason deregistered the agent, ConnManBackend will try to register
+    // it again when a connection attempt is made for a service.
+    //
+    // If the agent has not been successfully registered with ConnMan when connecting to a service,
+    // the request will be queued up in ConnManConnectQueue. When a result is received from ConnMan
+    // for the agent registration, the queue will be processed in FIFO order.
+    //
+    // Note that ConnMan uses strings in its D-Bus interface for SSID:s. Problematic since SSID:s
+    // may not necessarily be UTF-8 (prior to the 2012 edition of the IEEE 802.11 standard) and it
+    // is not allowed to send invalid UTF-8 strings over D-Bus. Current approach to handle this is
+    // to replace invalid UTF-8 bytes with Unicode replacement character (U+FFFD). (Search for
+    // string_to_valid_utf8() to see where conversion is needed.)
     class ConnManBackend final : public Backend,
                                  public ConnManManager::Listener,
                                  public ConnManAgent::Listener,

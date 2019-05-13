@@ -68,14 +68,23 @@ namespace ConnectivityManager::Daemon
         Glib::RefPtr<Proxy> proxy_;
     };
 
+    // Listener for manager events.
+    //
     // manager_proxy_creation_failed() is called if proxy creation fails. This should be considered
     // a critical error since there are currently no retries of creation the proxy (why should it
     // succeed the second time?). Might as well quit the application and retry when restarting.
     //
     // manager_availability_changed() with "available" set to true must be called before any other
-    // methods are allowed to be invoked on the manager. If ConnMan disconnects from the bus,
-    // manager_availability_changed() will be called with "available" set to false. Another call
-    // will be made with "available" set to true when ConnMan is restarted.
+    // methods are allowed to be invoked on the manager since it means that the D-Bus proxy has been
+    // created. If ConnMan disconnects from the bus, manager_availability_changed() will be called
+    // with "available" set to false. Another call will be made with "available" set to true when
+    // ConnMan has been restarted and taken a name on the bus again.
+    //
+    // manager_technology_add(), manager_technology_remove(), manager_service_add_or_change() and
+    // manager_service_remove() will be called when ConnMan adds/removes technologies and services
+    // (+ changes services in some cases, see doc/manager-api.txt).
+    //
+    // manager_register_agent_result() will be called when result of register_agent() is returned.
     class ConnManManager::Listener
     {
     public:

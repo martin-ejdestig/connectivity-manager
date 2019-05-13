@@ -29,7 +29,7 @@ namespace ConnectivityManager::Daemon
     // for verifying this. If that is the case the "one pending connect" at a time limitation can be
     // removed. It probably makes sense to modify it so that:
     // - Connect requests are only queued up in this class if the agent is not registered with
-    //   ConnMan. If the agent is ready, ConnManService::connect() should be called immediatelly.
+    //   ConnMan. If the agent is ready, ConnManService::connect() should be called immediately.
     //   - Modify ConnManService::Connect() to take Backend::ConnectFinished &&finished and
     //     Backend::RequestCredentialsFromUser &&request_credentials and store these in
     //     ConnManService. And invoke when appropriate.
@@ -41,7 +41,7 @@ namespace ConnectivityManager::Daemon
     //   - Only makes sense to store a single Backend::RequestCredentialsFromUser callback? Perhaps
     //     make it so that it is optional to pass it as well?
     // - When agent registration reply is received:
-    //   - if it failed, keep current behaviour and call fail_all_and_clear().
+    //   - if it failed, keep current behavior and call fail_all_and_clear().
     //   - if success, call ConnManService::connect() for all entries and move out of this queue.
     // - connect_if_not_empty() should be renamed to connect_all_queued_up() or something...
     // - connect_finished() and request_credentials() should be removed.

@@ -21,8 +21,12 @@
 
 namespace ConnectivityManager::Daemon
 {
-    // See doc/agent-api.txt in the ConnMan repo. Not all methods are implemented.
+    // Implementation of ConnMan agent object. See doc/agent-api.txt in the ConnMan repo.
+    //
+    // Called by ConnMan to ask for password etc. Not all methods are implemented.
     // org.freedesktop.DBus.Error.UnknownMethod will be returned for methods that are left out.
+    //
+    // Exposed on D-Bus under /com/luxoft/ConnectivityManager/ConnManAgent.
     class ConnManAgent : private net::connman::AgentStub
     {
     public:
@@ -78,8 +82,15 @@ namespace ConnectivityManager::Daemon
         State state_ = State::NOT_REGISTERED_WITH_MANAGER;
     };
 
+    // Listener for agent events.
+    //
     // The way ConnMan is implemented now, agent_released() will only be called when ConnMan exits
-    // cleanly. Need to clear any pending service connects that may rely on agent being registered.
+    // cleanly. Need to clear any pending service connects that may rely on agent being registered
+    // if this ever changes (instead of relying on clearing pending connects when ConnMan disappears
+    // from the bus.)
+    //
+    // agent_request_input() will be called when ConnMan requests "credentials". The reply callback
+    // _must_ be called to inform ConnMan of the result.
     class ConnManAgent::Listener
     {
     public:
