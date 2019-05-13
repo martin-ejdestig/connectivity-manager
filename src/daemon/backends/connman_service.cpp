@@ -16,7 +16,6 @@
 #include <typeinfo>
 #include <utility>
 
-#include "common/variant_get.h"
 #include "daemon/backends/connman_dbus.h"
 
 namespace ConnectivityManager::Daemon
@@ -126,14 +125,14 @@ namespace ConnectivityManager::Daemon
         std::optional<T> value_from_variant(const Glib::VariantBase &variant,
                                             const Glib::ustring &name)
         {
-            std::optional<T> ret = Common::variant_get<T>(variant);
-
-            if (!ret)
+            try {
+                return Glib::VariantBase::cast_dynamic<Glib::Variant<T>>(variant).get();
+            } catch (const std::bad_cast &) {
                 g_warning("Invalid type %s for ConnMan service property \"%s\"",
                           variant.get_type_string().c_str(),
                           name.c_str());
-
-            return ret;
+            }
+            return {};
         }
 
         template <typename T>
