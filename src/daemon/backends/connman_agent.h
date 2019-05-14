@@ -86,8 +86,8 @@ namespace ConnectivityManager::Daemon
     //
     // The way ConnMan is implemented now, agent_released() will only be called when ConnMan exits
     // cleanly. Need to clear any pending service connects that may rely on agent being registered
-    // if this ever changes (instead of relying on clearing pending connects when ConnMan disappears
-    // from the bus.)
+    // if this ever changes (instead of relying on only clearing pending connects when ConnMan
+    // disappears from the bus.)
     //
     // agent_request_input() will be called when ConnMan requests "credentials". The reply callback
     // _must_ be called to inform ConnMan of the result.

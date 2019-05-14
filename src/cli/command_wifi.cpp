@@ -16,7 +16,7 @@
 #include "common/dbus.h"
 
 // TODO: How to choose hidden AP for "connect"/"disconnect" from list shown by "status"?
-//       Could add an optiona called e.g. -c/--choose for connect/disconnect that prints list
+//       Could add an option called e.g. -c/--choose for connect/disconnect that prints list
 //       of AP:s in order returned by access_point_proxies() with each line in the format:
 //       <index + 1>) SSID or <Hidden> (+ details as for "status" now)
 //       And then prompt user for AP to connect to and accept both index (+1) and SSID.

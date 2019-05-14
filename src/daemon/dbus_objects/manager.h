@@ -61,10 +61,10 @@ namespace ConnectivityManager::Daemon
     private:
         // Information stored for calls to Connect().
         //
-        // Connect() should not return with result to caller until connect either succeeds or fails.
-        // MethodInvocation is stored so it can be used when Backend returns with result. Also
-        // stores path to com.luxoft.ConnectivityManager.UserInputAgent object provided by client in
-        // Connect() call and monitors if client disappears from the bus.
+        // Connect() should not return with result to caller until connecting either succeeds or
+        // fails. MethodInvocation is stored so it can be used when Backend returns with result.
+        // Also stores path to com.luxoft.ConnectivityManager.UserInputAgent object provided by
+        // client in Connect() call and monitors if client disappears from the bus.
         class PendingConnects
         {
         public:

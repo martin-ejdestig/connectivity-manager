@@ -9,7 +9,7 @@
         Connect:
         @object: Object path of object to connect.
         @input_agent: Object path of UserInputAgent for handling potential input
-            reqeusts from user. See com.luxoft.ConnectivityManager.UserInputAgent.
+            requests from user. See com.luxoft.ConnectivityManager.UserInputAgent.
 
         @object can be a path to:
         - A WiFiAccessPoint. Obtained by introspecting the WiFiAccessPoints

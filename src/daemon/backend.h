@@ -55,7 +55,7 @@ namespace ConnectivityManager::Daemon
     // State.wifi.access_points should be used instead.
     //
     // Access points are stored in an unordered map (State::wifi::access_points) and are guaranteed
-    // to have a unique id that can be used to identifiy them when e.g. mapping to D-Bus objects.
+    // to have a unique id that can be used to identify them when e.g. mapping to D-Bus objects.
     class Backend
     {
     public:

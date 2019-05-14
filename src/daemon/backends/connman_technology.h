@@ -25,9 +25,9 @@ namespace ConnectivityManager::Daemon
     // Encapsulates asynchronous creation of D-Bus proxy and handling of properties.
     //
     // ConnMan does not use the standard org.freedesktop.DBus.Properties interface. The D-Bus
-    // generator can not generate setters, getters and signals for ConnMan's custom interface so it
-    // must be handled manually. Trivial for read-only properties but more complicated for
-    // read/write properties. See SettableProperty.
+    // generator can not generate setters, getters and signals for ConnMan's custom properties
+    // interface so it must be handled manually. Trivial for read-only properties but more
+    // complicated for read/write properties. See SettableProperty.
     class ConnManTechnology : public sigc::trackable
     {
     public:
@@ -156,6 +156,8 @@ namespace ConnectivityManager::Daemon
         SettableProperty<Glib::ustring> tethering_passphrase_;
     };
 
+    // Listener for technology events.
+    //
     // technology_proxy_created() is guaranteed to be called before any other method in Listener.
     // ConnManBackend will not consider the technology available until this has been done. This is
     // to make sure that it is not used by the rest of the program before the proxy has been

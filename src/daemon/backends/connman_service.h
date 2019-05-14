@@ -25,14 +25,14 @@ namespace ConnectivityManager::Daemon
     // Encapsulates asynchronous creation of D-Bus proxy and handling of properties.
     //
     // ConnMan does not use the standard org.freedesktop.DBus.Properties interface. The D-Bus
-    // generator can not generate setters, getters and signals for ConnMan's custom interface so it
-    // must be handled manually.
+    // generator can not generate setters, getters and signals for ConnMan's custom properties
+    // interface so it must be handled manually.
     //
     // Note: At the moment there is no need for setting service properties. If this changes,
-    // something similar to what is done in ConnManTechnology has to be done. Perhaps easiest to
-    // copy ConnManTechnology::SettableProperty to ConnManService. A bit of code repetition but
-    // proxy type, id enum etc. are different and making SettableProperty generic probably
-    // complicates things more than it is worth. Just copy!
+    // something similar to what is done in ConnManTechnology::SettableProperty has to be done.
+    // Perhaps easiest to copy ConnManTechnology::SettableProperty to ConnManService. A bit of code
+    // repetition but proxy type, id enum etc. are different and making SettableProperty generic
+    // probably adds more complexity than it is worth... ?
     class ConnManService : public sigc::trackable
     {
     public:
@@ -111,17 +111,20 @@ namespace ConnectivityManager::Daemon
         Strength strength_ = 0;
     };
 
+    // Listener for service events.
+    //
     // service_proxy_created() is guaranteed to be called before any other method in Listener.
     // ConnManBackend will not consider the service available until this has been done. This is to
     // make sure that it is not used by the rest of the program before the proxy has been created.
     //
-    // technology_property_changed() is only called for properties that can change (not called for
-    // constant properties at creation). PropertyId only has entries for these properties.
+    // service_property_changed() is only called for properties that can change (not called for
+    // constant properties at creation). PropertyId only has entries for these properties. Note that
+    // a service can have its properties updated through the net.connman.Manager.ServicesChanged
+    // signal (see doc/manager-api.txt in the ConnMan repo), not only its own PropertyChanged
+    // signal. ConnManService::property_changed() does not call service_property_changed() if the
+    // proxy has not been created.
     //
-    // Note that a service can have its properties updated through the
-    // net.connman.Manager.ServicesChanged signal. See doc/manager-api.txt in the ConnMan repo.
-    // ConnManService::property_changed() checks if proxy_ is available or not before calling
-    // service_property_changed().
+    // service_connect_finished() will be called when result of Connect() is returned from ConnMan.
     class ConnManService::Listener
     {
     public:

@@ -269,13 +269,18 @@ namespace ConnectivityManager::Daemon
             proxy_->Connect_finish(result);
             success = true;
         } catch (const Glib::Error &e) {
-            // TODO: Probably need to do some extra checking here.
+            // TODO: Need to do some extra checking here.
+            //
             // - net.connman.Error.AlreadyConnected is returned if already connected. Should
-            //   probably not see that as an error... ?
+            //   probably not see that as an error...? Set success to true if this error occurs...?
+            //
             // - net.connman.Error.InProgress is returned connecting is in progress. See as error?
-            //   Unreasonable to do nothing here and wait for state to change, I think. Perhaps
-            //   "connecting" needs to be propagated upwards so e.g. UI can choose to not connect to
-            //   a "service" that is already "connecting"... and report error here...?
+            //   Unreasonable to wait for state to change, I think. Perhaps "connecting" needs to be
+            //   propagated upwards so e.g. UI can choose to not connect to a "service" that is
+            //   already "connecting". Still potential for race condition though... should only
+            //   occur if source other than UI connects service and UI tries to connect at the same
+            //   time... so perhaps this particular ConnMan error should just be reported as a
+            //   "Connect() failed" (KISS).
             g_warning("Failed to connect %s: %s", log_id_str().c_str(), e.what().c_str());
         }
 

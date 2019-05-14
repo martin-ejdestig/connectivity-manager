@@ -133,7 +133,7 @@ namespace ConnectivityManager::Daemon
         // Stored in std::map with id as key so paths are sorted by id now.
         //
         // Have "std::vector<WiFiAccessPoint::Id> wifi.access_points_sorted" in Backend::State (or
-        // pointers to elemnets in wifi.access_points, elements will not move). If in Backend it
+        // pointers to elements in wifi.access_points, elements will not move). If in Backend it
         // will be easier to test. Could also add a "SORTED_CHANGED" entry in
         // Backend::WiFiAccessPoint::Event and only call DBusService::wifi_access_points_changed()
         // when that event is received instead of listening to all events that may change order

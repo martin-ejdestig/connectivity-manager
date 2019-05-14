@@ -118,12 +118,17 @@ namespace ConnectivityManager::Daemon
             return password;
         }
 
-        // TODO: A lot of the cases are not tested.
+        // Map fields received in RequestInput() to a Common::Credentials struct.
         //
-        // Should try to trigger all possible inputs from ConnMan that we want to handle. Maybe also
-        // be a bit more strict and check "Requirement" and "Alternates" etc. and fail if values are
-        // not correct. Or? *Sigh* The ConnMan D-Bus API for this is underspecified in
-        // doc/agent-api.txt (have to check code) and so... needlessly complicated! *Sigh*
+        // See doc/agent-api.txt for some examples of contents of fields. "Value" argument of
+        // "Passphrase", "Password" and "WPS" is preferred over "PreviousPassphrase".
+        // "PreviousPassphrase" is used if "Value" is not set and the type matches.
+        //
+        // TODO: A lot of the cases are not tested. Should try to trigger all possible inputs from
+        //       ConnMan that we want to handle. Maybe also be a bit more strict and check
+        //       "Requirement" and "Alternates" etc. and fail if values are not correct. Or? *Sigh*
+        //       The ConnMan D-Bus API for this is under specified in doc/agent-api.txt (have to
+        //       check code) and so... needlessly complicated! *Sigh*
         std::optional<Credentials> received_fields_to_credentials(const Fields &received_fields)
         {
             Credentials credentials;
@@ -344,7 +349,7 @@ namespace ConnectivityManager::Daemon
 
     void ConnManAgent::Cancel(MethodInvocation &invocation)
     {
-        // TODO: Verify that it is OK to do nothing here. ConnMan cancelling an agent request should
+        // TODO: Verify that it is OK to do nothing here. ConnMan canceling an agent request should
         // lead to service Connect() call failing which should lead to pending RequestInput method
         // invocation being returned. Test by logging here and see if expected behavior is observed
         // (should be called when ConnMan's D-Bus call to agent times out, for instance).
