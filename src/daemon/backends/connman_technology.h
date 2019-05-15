@@ -83,28 +83,26 @@ namespace ConnectivityManager::Daemon
 
         // Helper for properties that are settable.
         //
-        // When set() is called, the local value returned by value() is changed immediatelly and
-        // Listener::technology_property_changed() is called to signal that the value has changed.
-        // If setting the property in ConnMan fails, the value is reverted to the last know value
-        // received from ConnMan and Listener::technology_property_changed() is called again to
-        // signal that the value has been reverted.
+        // Needed since ConnMan does not use the org.freedesktop.DBus.Properties interface.
         //
-        // If setting a value in ConnMan is already pending, the new value is queued. If a value is
-        // already queued and set() is called again, the old queued value will be replaced. This
-        // means that all values sent locally will not necessarily be sent to ConnMan. If this turns
-        // out to be a problem, a real queue has to be added. When a result is received from
-        // ConnMan, the queued value is sent regardless of whether the previous call was successful
-        // or not.
+        // Local value is changed immediatelly when set (Listener::technology_property_changed() is
+        // called). If ConnMan reports that setting the value failed, local value is reverted to the
+        // last known value received from ConnMan (Listener::technology_property_changed() is called
+        // again).
         //
-        // If a value is received from ConnMan, it is updated directly if there is no pending set.
-        // If a set is pending, the value is updated when the set is finished if there is no other
-        // value queued. The received value may be due to our own set call so "property changed" is
-        // only signalled internally if the value is different since otherwise it has already been
-        // done for that particular value.
+        // If setting a value in ConnMan is already pending, the new value is queued to be set when
+        // result of pending set is received. If a value has been queued and a set is performed
+        // again, the old queued value will be discarded and never sent to ConnMan. If this turns
+        // out to be a problem, a real queue has to be added.
         //
-        // TODO: Make the above documentation more clear. A bit confusing now but hard. Also, can
-        //       the logic be simplified? Can e.g. pending_/received_ be removed/replaced by a
-        //       booleans and value stored directly in value_ instead of std::optional?
+        // If a value is received from ConnMan, it is updated directly "property changed" is
+        // signalled if there is no pending set. If a set is pending, the value is updated when the
+        // set is finished if there is no other value queued. The received value may be due to our
+        // own set call so "property changed" is only signalled internally if the value is different
+        // since otherwise it has already been done for that particular value.
+        //
+        // TODO: Can the logic be simplified? Should be possible to implement current behavior
+        //       without three std::optional:s. Try and see if it simplifies code.
         // TODO: Add temporary extensive logging and make sure behavior is correct.
         template <typename V>
         struct SettableProperty : public sigc::trackable
