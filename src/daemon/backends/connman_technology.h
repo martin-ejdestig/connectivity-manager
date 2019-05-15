@@ -85,7 +85,7 @@ namespace ConnectivityManager::Daemon
         //
         // Needed since ConnMan does not use the org.freedesktop.DBus.Properties interface.
         //
-        // Local value is changed immediatelly when set (Listener::technology_property_changed() is
+        // Local value is changed immediately when set (Listener::technology_property_changed() is
         // called). If ConnMan reports that setting the value failed, local value is reverted to the
         // last known value received from ConnMan (Listener::technology_property_changed() is called
         // again).
