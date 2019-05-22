@@ -8,44 +8,45 @@ gdbus_codegen_deps = [
 interfaces_dir = join_paths(meson.source_root(), 'data')
 dbus_build_dir = meson.current_build_dir()
 
-# com.luxoft.ConnectivityManager
-cm_dbus_sources = custom_target('ConnectivityManager D-Bus source',
-    command : [ gdbus_codegen, '--generate-cpp-code=' + join_paths(dbus_build_dir, 'connectivity_manager'), '@INPUT@' ],
-    input : join_paths(interfaces_dir, 'com.luxoft.ConnectivityManager.xml'),
-    output : [
-        'connectivity_manager_common.cpp',
-        'connectivity_manager_common.h',
-        'connectivity_manager_proxy.cpp',
-        'connectivity_manager_proxy.h',
-        'connectivity_manager_stub.cpp',
-        'connectivity_manager_stub.h'
-    ])
+# FIXME: Care about server/client split and add more entries to dict? E.g. *AgentProxy is not
+#        needed in clients. Only *AgentStub is needed in clients.
+names_and_interfaces = {
+    'connectivity_manager': [
+        join_paths(interfaces_dir, 'com.luxoft.ConnectivityManager.xml')
+        # FIXME: 'com.luxoft.ConnectivityManager.UserInputAgent.xml'
+        # FIXME: 'com.luxoft.ConnectivityManager.WiFiAccessPoint.xml'
+    ],
+    'connman': [
+        join_paths(interfaces_dir, 'net.connman.Manager.xml'),
+        join_paths(interfaces_dir, 'net.connman.Technology.xml'),
+        join_paths(interfaces_dir, 'net.connman.Service.xml'),
+        join_paths(interfaces_dir, 'net.connman.Agent.xml')
+    ]
+}
 
-cm_dbus_headers = [ cm_dbus_sources[1], cm_dbus_sources[3], cm_dbus_sources[5] ]
+generated_dbus_deps = []
 
-cm_dbus_lib = static_library('connectivity_manager_dbus',
-    sources : cm_dbus_sources,
-    dependencies : gdbus_codegen_deps)
+foreach name, interfaces : names_and_interfaces
+    generated_dbus_sources = custom_target(name + ' D-Bus source',
+        command : [ gdbus_codegen, '--generate-cpp-code=' + join_paths(dbus_build_dir, name), '@INPUT@' ],
+        input : interfaces,
+        output : [
+            name + '_common.cpp',
+            name + '_common.h',
+            name + '_proxy.cpp',
+            name + '_proxy.h',
+            name + '_stub.cpp',
+            name + '_stub.h'
+        ])
 
-cm_dbus_dep = declare_dependency(link_with : cm_dbus_lib, sources : cm_dbus_headers)
+    generated_dbus_headers = [ generated_dbus_sources[1], generated_dbus_sources[3], generated_dbus_sources[5] ]
 
-# net.connman
-connman_dbus_sources = custom_target('ConnMan D-Bus source',
-    command : [ gdbus_codegen, '--generate-cpp-code=' + join_paths(dbus_build_dir, 'connman'), '@INPUT@' ],
-    input : join_paths(interfaces_dir, 'net.connman.xml'),
-    output : [
-        'connman_common.cpp',
-        'connman_common.h',
-        'connman_proxy.cpp',
-        'connman_proxy.h',
-        'connman_stub.cpp',
-        'connman_stub.h'
-    ])
+    generated_dbus_lib = static_library(name + '_dbus',
+        sources : generated_dbus_sources,
+        dependencies : gdbus_codegen_deps)
 
-connman_dbus_headers = [ connman_dbus_sources[1], connman_dbus_sources[3], connman_dbus_sources[5] ]
+    generated_dbus_deps += declare_dependency(link_with : generated_dbus_lib, sources : generated_dbus_headers)
+endforeach
 
-connman_dbus_lib = static_library('connman_dbus',
-    sources : connman_dbus_sources,
-    dependencies : gdbus_codegen_deps)
-
-connman_dbus_dep = declare_dependency(link_with : connman_dbus_lib, sources : connman_dbus_headers)
+cm_dbus_dep = generated_dbus_deps[0]
+connman_dbus_dep = generated_dbus_deps[1]

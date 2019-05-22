@@ -1,0 +1,30 @@
+<!DOCTYPE node PUBLIC
+ "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<!--
+    ConnMan does not install an interface file in $(datadir)/dbus-1/interfaces
+    and there is no interface XML in the ConnMan Git repository. Need to
+    specify it ourselves. Should normally not be done. Have only added parts of
+    interfaces that are used.
+
+    ConnMan also does not use the standard org.freedesktop.DBus.Properties
+    interface for properties which makes property handling a bit awkward.
+-->
+<node>
+  <!-- See doc/service-api.txt in the ConnMan repo. -->
+  <interface name="net.connman.Service">
+    <method name="SetProperty">
+      <arg name="name" type="s" direction="in"/>
+      <arg name="value" type="v" direction="in"/>
+    </method>
+
+    <method name="Connect"/>
+
+    <method name="Disconnect"/>
+
+    <signal name="PropertyChanged">
+      <arg name="name" type="s"/>
+      <arg name="value" type="v"/>
+    </signal>
+  </interface>
+</node>

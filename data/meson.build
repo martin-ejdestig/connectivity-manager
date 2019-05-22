@@ -5,7 +5,7 @@ dbus_sysconf_dir = join_paths(dbus_data_dir, 'system.d')
 
 install_data('com.luxoft.ConnectivityManager.conf', install_dir : dbus_sysconf_dir)
 install_data('com.luxoft.ConnectivityManager.service', install_dir : dbus_services_dir)
-install_data('com.luxoft.ConnectivityManager.xml', install_dir : dbus_interfaces_dir)
+install_data('com.luxoft.ConnectivityManager.xml', install_dir : dbus_interfaces_dir) # FIXME: *.{UserInputAgent,WiFiAccessPoint}.xml
 
 systemd_unit_dir = systemd_dep.get_pkgconfig_variable('systemdsystemunitdir')
 systemd_unit_config = configuration_data()
