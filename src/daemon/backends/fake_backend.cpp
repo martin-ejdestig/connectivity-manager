@@ -53,12 +53,20 @@ namespace ConnectivityManager::Daemon
         for (auto &[id, ap] : state().wifi.access_points)
             wifi_disconnect(ap);
 
-        if (auto ap = wifi_access_point_find(access_point.id); ap) {
-            wifi_access_point_connected_set(*ap, true);
-            finished(ConnectResult::SUCCESS);
-        } else {
-            finished(ConnectResult::FAILED);
-        }
+        constexpr unsigned int DELAY_SECONDS = 30;
+
+        Glib::signal_timeout().connect_seconds(
+            [this, id = access_point.id, finished = std::move(finished)] {
+                if (auto ap = wifi_access_point_find(id); ap) {
+                    wifi_access_point_connected_set(*ap, true);
+                    finished(ConnectResult::SUCCESS);
+                } else {
+                    finished(ConnectResult::FAILED);
+                }
+
+                return false; // No repeat.
+            },
+            DELAY_SECONDS);
     }
 
     void FakeBackend::wifi_disconnect(const WiFiAccessPoint &access_point)
