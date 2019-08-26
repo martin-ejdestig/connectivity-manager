@@ -15,6 +15,7 @@
 
 #include "config.h"
 #include "daemon/backends/connman_backend.h"
+#include "daemon/backends/fake_backend.h"
 
 namespace ConnectivityManager::Daemon
 {
@@ -24,11 +25,12 @@ namespace ConnectivityManager::Daemon
 
     std::unique_ptr<Backend> Backend::create_default()
     {
-#if CONNECTIVITY_MANAGER_BACKEND == CONNECTIVITY_MANAGER_BACKEND_CONNMAN
-        return std::make_unique<ConnManBackend>();
-#else
-#    error "Mising backend in create_backend()."
-#endif
+        // #if CONNECTIVITY_MANAGER_BACKEND == CONNECTIVITY_MANAGER_BACKEND_CONNMAN
+        //         return std::make_unique<ConnManBackend>();
+        // #else
+        // #    error "Mising backend in create_backend()."
+        // #endif
+        return std::make_unique<FakeBackend>();
     }
 
     void Backend::critical_error()

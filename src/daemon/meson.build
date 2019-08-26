@@ -25,6 +25,8 @@ daemon_sources = [
     'backends/connman_service.h',
     'backends/connman_technology.cpp',
     'backends/connman_technology.h',
+    'backends/fake_backend.cpp',
+    'backends/fake_backend.h',
     'daemon.cpp',
     'daemon.h',
     'dbus_objects/manager.cpp',
