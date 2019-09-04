@@ -15,7 +15,6 @@
 #include <vector>
 
 // TODO:
-// - Periodically change strength on a couple of APs.
 // - Periodically change SSID on a couple of APs... or maybe just one.
 // - Reconnect previously connected ap if hotspot is disabled? Maybe punt for now.
 // - Story for connecting global state. What is in CM and NM?
@@ -43,6 +42,9 @@ namespace ConnectivityManager::Daemon
             ap.ssid = "Test " + std::to_string(i + 1);
             ap.strength = 100 - i;
             ap.connected = false;
+
+            if (i == 4 || i == 6)
+                strength_change_info_.ids.push_back(ap.id);
         }
 
         wifi_access_points_add_all(std::move(aps));
@@ -72,11 +74,28 @@ namespace ConnectivityManager::Daemon
                 return true;
             },
             STAY_OR_GO_DELAY_SECONDS);
+
+        constexpr unsigned int STRENGTH_CHANGE_DELAY_SECONDS = 4;
+        strength_change_info_.timer_connection = Glib::signal_timeout().connect_seconds(
+            [&] {
+                for (auto id : strength_change_info_.ids) {
+                    if (auto ap = wifi_access_point_find(id); ap) {
+                        wifi_access_point_strength_set(*ap,
+                                                       ap->strength > 10 ? ap->strength - 1 : 100);
+                        g_message("Strength AP \"%s\": %d", ap->ssid.c_str(), int(ap->strength));
+                    }
+                }
+                return true;
+            },
+            STRENGTH_CHANGE_DELAY_SECONDS);
     }
 
     void FakeBackend::wifi_disable()
     {
         stay_or_go_ap_info_.timer_connection.disconnect();
+
+        strength_change_info_.ids = {};
+        strength_change_info_.timer_connection.disconnect();
 
         wifi_access_points_remove_all();
 

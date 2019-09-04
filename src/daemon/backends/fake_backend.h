@@ -49,6 +49,12 @@ namespace ConnectivityManager::Daemon
             WiFiAccessPoint::Id id = WiFiAccessPoint::ID_EMPTY;
             sigc::connection timer_connection;
         } stay_or_go_ap_info_;
+
+        struct
+        {
+            std::vector<WiFiAccessPoint::Id> ids;
+            sigc::connection timer_connection;
+        } strength_change_info_;
     };
 }
 
