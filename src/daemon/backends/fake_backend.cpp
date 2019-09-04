@@ -25,18 +25,6 @@
 
 namespace ConnectivityManager::Daemon
 {
-    namespace
-    {
-        struct PendingConnect
-        {
-            Backend::ConnectFinished finished;
-            Backend::RequestCredentialsFromUser request_credentials;
-            sigc::connection delay_timeout_connection;
-        };
-
-        PendingConnect pending_connect;
-    }
-
     FakeBackend::FakeBackend()
     {
         wifi_enable();
@@ -49,6 +37,7 @@ namespace ConnectivityManager::Daemon
         wifi_status_set(WiFiStatus::ENABLED);
 
         std::vector<WiFiAccessPoint> aps;
+
         for (int i = 0; i < 10; i++) {
             WiFiAccessPoint &ap = aps.emplace_back();
             ap.id = wifi_access_point_next_id();
@@ -75,27 +64,27 @@ namespace ConnectivityManager::Daemon
             return;
         }
 
-        if (pending_connect.finished) {
-            pending_connect.finished(ConnectResult::FAILED);
-            pending_connect.delay_timeout_connection.disconnect();
-            pending_connect = PendingConnect();
+        if (pending_connect_.finished) {
+            pending_connect_.finished(ConnectResult::FAILED);
+            pending_connect_.delay_timeout_connection.disconnect();
+            pending_connect_ = PendingConnect();
         }
 
-        pending_connect.finished = std::move(finished);
-        pending_connect.request_credentials = std::move(request_credentials);
+        pending_connect_.finished = std::move(finished);
+        pending_connect_.request_credentials = std::move(request_credentials);
 
         constexpr unsigned int DELAY_SECONDS = 5;
 
-        pending_connect.delay_timeout_connection = Glib::signal_timeout().connect_seconds(
+        pending_connect_.delay_timeout_connection = Glib::signal_timeout().connect_seconds(
             [this, id = access_point.id] {
                 for (auto &[id_unused, ap] : state().wifi.access_points)
                     wifi_disconnect(ap);
 
                 if (auto ap = wifi_access_point_find(id); ap) {
                     wifi_access_point_connected_set(*ap, true);
-                    pending_connect.finished(ConnectResult::SUCCESS);
+                    pending_connect_.finished(ConnectResult::SUCCESS);
                 } else {
-                    pending_connect.finished(ConnectResult::FAILED);
+                    pending_connect_.finished(ConnectResult::FAILED);
                 }
 
                 return false; // No repeat.

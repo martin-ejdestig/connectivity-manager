@@ -9,6 +9,8 @@
 #ifndef CONNECTIVITY_MANAGER_DAEMON_BACKENDS_FAKE_BACKEND_H
 #define CONNECTIVITY_MANAGER_DAEMON_BACKENDS_FAKE_BACKEND_H
 
+#include <glibmm.h>
+
 #include "daemon/backend.h"
 
 namespace ConnectivityManager::Daemon
@@ -30,6 +32,16 @@ namespace ConnectivityManager::Daemon
         void wifi_hotspot_disable() override;
         void wifi_hotspot_change_ssid(const std::string &ssid) override;
         void wifi_hotspot_change_passphrase(const Glib::ustring &passphrase) override;
+
+    private:
+        struct PendingConnect
+        {
+            Backend::ConnectFinished finished;
+            Backend::RequestCredentialsFromUser request_credentials;
+            sigc::connection delay_timeout_connection;
+        };
+
+        PendingConnect pending_connect_;
     };
 }
 
