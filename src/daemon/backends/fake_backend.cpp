@@ -14,6 +14,15 @@
 #include <utility>
 #include <vector>
 
+// TODO:
+// - Add an ap, e.g. Test 11, that comes and goes.
+// - Periodically change strength on a couple of APs.
+// - Periodically change SSID on a couple of APs... or maybe just one.
+// - Reconnect previously connected ap if hotspot is disabled? Maybe punt for now.
+// - Story for connecting global state. What is in CM and NM?
+// - Higher prio on stories for more info in AP ifc? (connected/connecting, security).
+// - Ask for password on at least one AP.
+
 namespace ConnectivityManager::Daemon
 {
     namespace
