@@ -55,7 +55,7 @@ namespace ConnectivityManager::Daemon
         for (auto &[id, ap] : state().wifi.access_points)
             wifi_disconnect(ap);
 
-        constexpr unsigned int DELAY_SECONDS = 30;
+        constexpr unsigned int DELAY_SECONDS = 5;
 
         Glib::signal_timeout().connect_seconds(
             [this, id = access_point.id, finished = std::move(finished)] {
