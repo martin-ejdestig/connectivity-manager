@@ -56,7 +56,7 @@ namespace ConnectivityManager::Daemon
 
         Glib::signal_timeout().connect_seconds(
             [this, id = access_point.id, finished = std::move(finished)] {
-                for (auto &[id, ap] : state().wifi.access_points)
+                for (auto &[id_unused, ap] : state().wifi.access_points)
                     wifi_disconnect(ap);
 
                 if (auto ap = wifi_access_point_find(id); ap) {
