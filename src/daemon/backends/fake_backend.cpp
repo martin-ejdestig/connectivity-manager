@@ -79,6 +79,9 @@ namespace ConnectivityManager::Daemon
 
     void FakeBackend::wifi_hotspot_enable()
     {
+        for (auto &[id, ap] : state().wifi.access_points)
+            wifi_disconnect(ap);
+
         wifi_hotspot_status_set(WiFiHotspotStatus::ENABLED);
     }
 
