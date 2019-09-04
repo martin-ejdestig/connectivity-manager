@@ -36,12 +36,19 @@ namespace ConnectivityManager::Daemon
     private:
         struct PendingConnect
         {
+            WiFiAccessPoint::Id ap_id = WiFiAccessPoint::ID_EMPTY;
             Backend::ConnectFinished finished;
             Backend::RequestCredentialsFromUser request_credentials;
             sigc::connection delay_timeout_connection;
         };
 
         PendingConnect pending_connect_;
+
+        struct
+        {
+            WiFiAccessPoint::Id id = WiFiAccessPoint::ID_EMPTY;
+            sigc::connection timer_connection;
+        } stay_or_go_ap_info_;
     };
 }
 

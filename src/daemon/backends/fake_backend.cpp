@@ -15,7 +15,6 @@
 #include <vector>
 
 // TODO:
-// - Add an ap, e.g. Test 11, that comes and goes.
 // - Periodically change strength on a couple of APs.
 // - Periodically change SSID on a couple of APs... or maybe just one.
 // - Reconnect previously connected ap if hotspot is disabled? Maybe punt for now.
@@ -47,11 +46,40 @@ namespace ConnectivityManager::Daemon
         }
 
         wifi_access_points_add_all(std::move(aps));
+
+        constexpr unsigned int STAY_OR_GO_DELAY_SECONDS = 10;
+        stay_or_go_ap_info_.timer_connection = Glib::signal_timeout().connect_seconds(
+            [&] {
+                if (stay_or_go_ap_info_.id == WiFiAccessPoint::ID_EMPTY) {
+                    WiFiAccessPoint ap;
+                    ap.id = wifi_access_point_next_id();
+                    ap.ssid = "Should I stay or should I go";
+                    ap.strength = 50;
+                    ap.connected = false;
+                    stay_or_go_ap_info_.id = ap.id;
+                    g_message("Adding AP \"%s\"", ap.ssid.c_str());
+                    wifi_access_point_add(std::move(ap));
+                } else if (auto ap = wifi_access_point_find(stay_or_go_ap_info_.id); ap) {
+                    if (pending_connect_.ap_id == ap->id) {
+                        pending_connect_.finished(ConnectResult::FAILED);
+                        pending_connect_.delay_timeout_connection.disconnect();
+                        pending_connect_ = PendingConnect();
+                    }
+                    stay_or_go_ap_info_.id = WiFiAccessPoint::ID_EMPTY;
+                    g_message("Removing AP \"%s\"", ap->ssid.c_str());
+                    wifi_access_point_remove(*ap);
+                }
+                return true;
+            },
+            STAY_OR_GO_DELAY_SECONDS);
     }
 
     void FakeBackend::wifi_disable()
     {
+        stay_or_go_ap_info_.timer_connection.disconnect();
+
         wifi_access_points_remove_all();
+
         wifi_status_set(WiFiStatus::DISABLED);
     }
 
@@ -70,22 +98,25 @@ namespace ConnectivityManager::Daemon
             pending_connect_ = PendingConnect();
         }
 
+        pending_connect_.ap_id = access_point.id;
         pending_connect_.finished = std::move(finished);
         pending_connect_.request_credentials = std::move(request_credentials);
 
         constexpr unsigned int DELAY_SECONDS = 5;
 
         pending_connect_.delay_timeout_connection = Glib::signal_timeout().connect_seconds(
-            [this, id = access_point.id] {
-                for (auto &[id_unused, ap] : state().wifi.access_points)
+            [&] {
+                for (auto &[id, ap] : state().wifi.access_points)
                     wifi_disconnect(ap);
 
-                if (auto ap = wifi_access_point_find(id); ap) {
+                if (auto ap = wifi_access_point_find(pending_connect_.ap_id); ap) {
                     wifi_access_point_connected_set(*ap, true);
                     pending_connect_.finished(ConnectResult::SUCCESS);
                 } else {
                     pending_connect_.finished(ConnectResult::FAILED);
                 }
+
+                pending_connect_ = PendingConnect();
 
                 return false; // No repeat.
             },
