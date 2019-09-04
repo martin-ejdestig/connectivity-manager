@@ -47,8 +47,10 @@ namespace ConnectivityManager::Daemon
                                    ConnectFinished &&finished,
                                    RequestCredentialsFromUser && /*request_credentials*/)
     {
-        if (access_point.connected)
+        if (access_point.connected) {
+            finished(ConnectResult::SUCCESS);
             return;
+        }
 
         for (auto &[id, ap] : state().wifi.access_points)
             wifi_disconnect(ap);
