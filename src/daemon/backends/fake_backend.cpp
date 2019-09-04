@@ -52,13 +52,13 @@ namespace ConnectivityManager::Daemon
             return;
         }
 
-        for (auto &[id, ap] : state().wifi.access_points)
-            wifi_disconnect(ap);
-
         constexpr unsigned int DELAY_SECONDS = 5;
 
         Glib::signal_timeout().connect_seconds(
             [this, id = access_point.id, finished = std::move(finished)] {
+                for (auto &[id, ap] : state().wifi.access_points)
+                    wifi_disconnect(ap);
+
                 if (auto ap = wifi_access_point_find(id); ap) {
                     wifi_access_point_connected_set(*ap, true);
                     finished(ConnectResult::SUCCESS);
