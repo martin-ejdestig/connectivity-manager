@@ -61,6 +61,11 @@ namespace ConnectivityManager::Daemon
             std::vector<WiFiAccessPoint::Id> ids;
             sigc::connection timer_connection;
         } ssid_change_info_;
+
+        struct
+        {
+            WiFiAccessPoint::Id disable_reconnect_ap_id = WiFiAccessPoint::ID_EMPTY;
+        } hotspot_info_;
     };
 }
 

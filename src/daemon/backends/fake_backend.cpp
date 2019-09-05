@@ -15,7 +15,6 @@
 #include <vector>
 
 // TODO:
-// - Reconnect previously connected ap if hotspot is disabled? Maybe punt for now.
 // - Story for connecting global state. What is in CM and NM?
 // - Higher prio on stories for more info in AP ifc? (connected/connecting, security).
 // - Ask for password on at least one AP.
@@ -129,6 +128,9 @@ namespace ConnectivityManager::Daemon
         ssid_change_info_.ids = {};
         ssid_change_info_.timer_connection.disconnect();
 
+        wifi_hotspot_status_set(WiFiHotspotStatus::DISABLED);
+        hotspot_info_.disable_reconnect_ap_id = WiFiAccessPoint::ID_EMPTY;
+
         wifi_access_points_remove_all();
 
         wifi_status_set(WiFiStatus::DISABLED);
@@ -182,8 +184,12 @@ namespace ConnectivityManager::Daemon
 
     void FakeBackend::wifi_hotspot_enable()
     {
-        for (auto &[id, ap] : state().wifi.access_points)
-            wifi_disconnect(ap);
+        for (auto &[id, ap] : state().wifi.access_points) {
+            if (ap.connected) {
+                hotspot_info_.disable_reconnect_ap_id = id;
+                wifi_disconnect(ap);
+            }
+        }
 
         wifi_hotspot_status_set(WiFiHotspotStatus::ENABLED);
     }
@@ -191,6 +197,13 @@ namespace ConnectivityManager::Daemon
     void FakeBackend::wifi_hotspot_disable()
     {
         wifi_hotspot_status_set(WiFiHotspotStatus::DISABLED);
+
+        auto reconnect_ap_id = hotspot_info_.disable_reconnect_ap_id;
+        hotspot_info_.disable_reconnect_ap_id = WiFiAccessPoint::ID_EMPTY;
+
+        if (reconnect_ap_id != WiFiAccessPoint::ID_EMPTY)
+            if (auto ap = wifi_access_point_find(reconnect_ap_id); ap)
+                wifi_access_point_connected_set(*ap, true);
     }
 
     void FakeBackend::wifi_hotspot_change_ssid(const std::string &ssid)
