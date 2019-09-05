@@ -11,6 +11,9 @@
 
 #include <glibmm.h>
 
+#include <string>
+#include <vector>
+
 #include "daemon/backend.h"
 
 namespace ConnectivityManager::Daemon
