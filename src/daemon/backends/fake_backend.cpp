@@ -126,6 +126,9 @@ namespace ConnectivityManager::Daemon
         strength_change_info_.ids = {};
         strength_change_info_.timer_connection.disconnect();
 
+        ssid_change_info_.ids = {};
+        ssid_change_info_.timer_connection.disconnect();
+
         wifi_access_points_remove_all();
 
         wifi_status_set(WiFiStatus::DISABLED);
