@@ -17,7 +17,6 @@
 // TODO:
 // - Story for connecting global state. What is in CM and NM?
 // - Higher prio on stories for more info in AP ifc? (connected/connecting, security).
-// - Ask for password on at least one AP.
 
 namespace ConnectivityManager::Daemon
 {
