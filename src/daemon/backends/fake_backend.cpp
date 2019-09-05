@@ -15,7 +15,6 @@
 #include <vector>
 
 // TODO:
-// - Periodically change SSID on a couple of APs... or maybe just one.
 // - Reconnect previously connected ap if hotspot is disabled? Maybe punt for now.
 // - Story for connecting global state. What is in CM and NM?
 // - Higher prio on stories for more info in AP ifc? (connected/connecting, security).
@@ -43,8 +42,15 @@ namespace ConnectivityManager::Daemon
             ap.strength = 100 - i;
             ap.connected = false;
 
-            if (i == 4 || i == 6)
+            if (i == 4 || i == 6) {
+                ap.ssid += " - Strength will change";
                 strength_change_info_.ids.push_back(ap.id);
+            }
+
+            if (i == 5) {
+                ap.ssid += " - SSID will change";
+                ssid_change_info_.ids.push_back(ap.id);
+            }
         }
 
         wifi_access_points_add_all(std::move(aps));
@@ -82,12 +88,35 @@ namespace ConnectivityManager::Daemon
                     if (auto ap = wifi_access_point_find(id); ap) {
                         wifi_access_point_strength_set(*ap,
                                                        ap->strength > 10 ? ap->strength - 1 : 100);
-                        g_message("Strength AP \"%s\": %d", ap->ssid.c_str(), int(ap->strength));
+                        g_message("Changing strength on \"%s\": %d",
+                                  ap->ssid.c_str(),
+                                  int(ap->strength));
                     }
                 }
                 return true;
             },
             STRENGTH_CHANGE_DELAY_SECONDS);
+
+        constexpr unsigned int SSID_CHANGE_DELAY_SECONDS = 4;
+        ssid_change_info_.timer_connection = Glib::signal_timeout().connect_seconds(
+            [&] {
+                for (auto id : ssid_change_info_.ids) {
+                    if (auto ap = wifi_access_point_find(id); ap) {
+                        std::string new_ssid = ap->ssid;
+                        if (new_ssid.back() < '0' || new_ssid.back() > '9')
+                            new_ssid += " 0";
+                        new_ssid.back() += 1;
+                        if (new_ssid.back() > '9')
+                            new_ssid.back() = '0';
+                        g_message("Changing SSID on \"%s\" to \"%s\"",
+                                  ap->ssid.c_str(),
+                                  new_ssid.c_str());
+                        wifi_access_point_ssid_set(*ap, new_ssid);
+                    }
+                }
+                return true;
+            },
+            SSID_CHANGE_DELAY_SECONDS);
     }
 
     void FakeBackend::wifi_disable()

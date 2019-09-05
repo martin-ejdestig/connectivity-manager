@@ -55,6 +55,12 @@ namespace ConnectivityManager::Daemon
             std::vector<WiFiAccessPoint::Id> ids;
             sigc::connection timer_connection;
         } strength_change_info_;
+
+        struct
+        {
+            std::vector<WiFiAccessPoint::Id> ids;
+            sigc::connection timer_connection;
+        } ssid_change_info_;
     };
 }
 
