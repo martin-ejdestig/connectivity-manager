@@ -16,6 +16,11 @@
 
 // TODO:
 // - Story for connecting global state. What is in CM and NM?
+//   - ConnMan has a "State" property in Manager that can be "offline", "idle", "ready" or
+//     "offline".
+//   - NetworkManager has a "state" method that can be set to value in NMState enum
+//     (NM_STATE_... UNKNOWN, ASLEEP, DISCONNECTED, DISCONNECTING, CONNECTING, CONNECTED_LOCAL,
+//     CONNECTED_SITE, CONNECTED_GLOBAL)
 // - Higher prio on stories for more info in AP ifc? (connected/connecting, security).
 
 namespace ConnectivityManager::Daemon
