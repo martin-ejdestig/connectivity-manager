@@ -11,9 +11,12 @@
 
 #include <glibmm.h>
 
+#include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
+#include "common/credentials.h"
 #include "daemon/backend.h"
 
 namespace ConnectivityManager::Daemon
@@ -37,6 +40,8 @@ namespace ConnectivityManager::Daemon
         void wifi_hotspot_change_passphrase(const Glib::ustring &passphrase) override;
 
     private:
+        void request_credentials_reply(const std::optional<Common::Credentials> &result);
+
         struct PendingConnect
         {
             WiFiAccessPoint::Id ap_id = WiFiAccessPoint::ID_EMPTY;
@@ -69,6 +74,11 @@ namespace ConnectivityManager::Daemon
         {
             WiFiAccessPoint::Id disable_reconnect_ap_id = WiFiAccessPoint::ID_EMPTY;
         } hotspot_info_;
+
+        struct
+        {
+            std::set<WiFiAccessPoint::Id> ids;
+        } request_pwd_info_;
     };
 }
 

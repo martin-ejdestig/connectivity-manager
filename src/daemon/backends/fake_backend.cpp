@@ -41,6 +41,11 @@ namespace ConnectivityManager::Daemon
             ap.strength = 100 - i;
             ap.connected = false;
 
+            if (i == 1) {
+                ap.ssid += " - Will ask for pwd";
+                request_pwd_info_.ids.insert(ap.id);
+            }
+
             if (i == 4 || i == 6) {
                 ap.ssid += " - Strength will change";
                 strength_change_info_.ids.push_back(ap.id);
@@ -137,6 +142,8 @@ namespace ConnectivityManager::Daemon
         wifi_hotspot_status_set(WiFiHotspotStatus::DISABLED);
         hotspot_info_.disable_reconnect_ap_id = WiFiAccessPoint::ID_EMPTY;
 
+        request_pwd_info_.ids.clear();
+
         wifi_access_points_remove_all();
 
         wifi_status_set(WiFiStatus::DISABLED);
@@ -161,8 +168,23 @@ namespace ConnectivityManager::Daemon
         pending_connect_.finished = std::move(finished);
         pending_connect_.request_credentials = std::move(request_credentials);
 
-        constexpr unsigned int DELAY_SECONDS = 5;
+        if (request_pwd_info_.ids.find(access_point.id) != request_pwd_info_.ids.cend()) {
+            using Requested = Common::Credentials::Requested;
+            using Password = Common::Credentials::Password;
 
+            Requested requested;
+
+            requested.description_type = Requested::TYPE_WIRELESS_NETWORK;
+            requested.description_id = access_point.ssid;
+            requested.credentials.password = Password{Password::Type::WPA_PSK, ""};
+
+            pending_connect_.request_credentials(
+                requested, [&](auto result) { request_credentials_reply(result); });
+
+            return;
+        }
+
+        constexpr unsigned int DELAY_SECONDS = 5;
         pending_connect_.delay_timeout_connection = Glib::signal_timeout().connect_seconds(
             [&] {
                 for (auto &[id, ap] : state().wifi.access_points)
@@ -220,5 +242,45 @@ namespace ConnectivityManager::Daemon
     void FakeBackend::wifi_hotspot_change_passphrase(const Glib::ustring &passphrase)
     {
         wifi_hotspot_passphrase_set(passphrase);
+    }
+
+    void FakeBackend::request_credentials_reply(const std::optional<Common::Credentials> &result)
+    {
+        using Password = Common::Credentials::Password;
+
+        auto connect_ap = wifi_access_point_find(pending_connect_.ap_id);
+        if (!connect_ap)
+            return;
+
+        auto finished = std::move(pending_connect_.finished);
+        pending_connect_ = PendingConnect(); // Prevent recursion since not async when fake... ugly,
+                                             // but who cares... it's all fake!
+
+        ConnectResult connect_result = ConnectResult::FAILED;
+
+        if (result && result->password) {
+            if (result->password->type == Password::Type::WPA_PSK &&
+                result->password->value == "123") {
+                connect_result = ConnectResult::SUCCESS;
+                g_message("Woho, correct password type and value in reply, connect success");
+            } else {
+                g_message("Wrong password, WPA PSK with value 123 expected (value = %s)",
+                          result->password->value.c_str());
+            }
+        } else {
+            if (!result)
+                g_message("No pwd request result...?");
+            else
+                g_message("No pwd set in pwd result");
+        }
+
+        if (connect_result == ConnectResult::SUCCESS) {
+            for (auto &[id, ap] : state().wifi.access_points)
+                wifi_disconnect(ap);
+
+            wifi_access_point_connected_set(*connect_ap, true);
+        }
+
+        finished(connect_result);
     }
 }
