@@ -120,6 +120,12 @@ namespace ConnectivityManager::Daemon
 
     void FakeBackend::wifi_disable()
     {
+        if (pending_connect_.finished) {
+            pending_connect_.finished(ConnectResult::FAILED);
+            pending_connect_.delay_timeout_connection.disconnect();
+            pending_connect_ = PendingConnect();
+        }
+
         stay_or_go_ap_info_.timer_connection.disconnect();
 
         strength_change_info_.ids = {};
