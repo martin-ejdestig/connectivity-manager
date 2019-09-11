@@ -222,7 +222,8 @@ namespace ConnectivityManager::Cli
             std::string connected_marker = connected ? "*" : " ";
             std::string ssid = proxy->SSID_get();
             std::string name = ssid.empty() ? "<Hidden>" : ssid;
-            std::string details = "Strength: " + std::to_string(proxy->Strength_get());
+            std::string details = "Strength: " + std::to_string(proxy->Strength_get()) + ", " +
+                                  "Security: " + proxy->Security_get();
 
             std::cout << "  " << connected_marker << "  " << name << " (" << details << ")\n";
         }
