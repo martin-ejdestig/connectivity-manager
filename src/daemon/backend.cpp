@@ -14,7 +14,9 @@
 #include <utility>
 
 #include "config.h"
-#include "daemon/backends/connman_backend.h"
+#if CONNECTIVITY_MANAGER_BACKEND == CONNECTIVITY_MANAGER_BACKEND_CONNMAN
+#    include "daemon/backends/connman_backend.h"
+#endif
 
 namespace ConnectivityManager::Daemon
 {
