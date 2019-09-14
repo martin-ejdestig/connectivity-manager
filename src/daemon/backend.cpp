@@ -29,7 +29,7 @@ namespace ConnectivityManager::Daemon
 #if CONNECTIVITY_MANAGER_BACKEND == CONNECTIVITY_MANAGER_BACKEND_CONNMAN
         return std::make_unique<ConnManBackend>();
 #else
-#    error "Mising backend in create_backend()."
+#    error "Mising backend in Backend::create_default()."
 #endif
     }
 
