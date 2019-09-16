@@ -47,6 +47,7 @@ namespace ConnectivityManager::Daemon
 
             if (i == 1) {
                 ap.ssid += " - Will ask for pwd";
+                ap.security = WiFiSecurity::WPA_PSK;
                 request_pwd_info_.ids.insert(ap.id);
             }
 
