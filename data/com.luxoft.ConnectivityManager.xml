@@ -147,9 +147,9 @@
 
             Password type  Meaning
             "passphrase"   Passphrase (for e.g. 802.1x/EAP authentication).
-            "wpa_psk"      WPA PSK
-            "wep_key"      WEP key
-            "wps_pin       WPS pin
+            "wpa-psk"      WPA-PSK
+            "wep-key"      WEP key
+            "wps-pin       WPS pin
 
         "password_alternative"
             Password alternative. Value type: (ss)
@@ -179,21 +179,43 @@
       Interface for Wi-Fi access points implemented by objects in
       WiFiAccessPoints property.
 
-      TODO: Replace "Connected" with "State" (type="s")? If yes, check
-            NetworkManager and ConnMan for what makes sense. What do we
-            want/need? Enough with "disconnected", "connecting", "connected"?
-            Enough with UI calling Connect() to indicate within itself that
-            it is connecting until Connect() returns and only have this boolean
-            to show marker in AP list ("State" superfluous)? If so, leave as is
-            and just remove this TODO.
-
       TODO: Add a "Security" (type="s") property for wireless security. Check
             NetworkManager and ConnMan for what makes sense.
   -->
   <interface name="com.luxoft.ConnectivityManager.WiFiAccessPoint">
+    <!--
+        SSID/Name of access point.
+
+        Byte array since SSID:s are not necessarily in UTF-8.
+    -->
     <property name="SSID" type="ay" access="read"/>
-    <property name="Strength" type="y" access="read"/> <!-- Range: 0-100 (in percent) -->
+
+    <!--
+        Signal strength.
+
+        Range: 0-100 (in percent).
+    -->
+    <property name="Strength" type="y" access="read"/>
+
+    <!--
+        Connection state of access point.
+
+        TODO: Replace "Connected" with "State" (type="s")? If yes, check
+              NetworkManager and ConnMan for what makes sense. What do we
+              want/need? Enough with "disconnected", "connecting", "connected"?
+    -->
     <property name="Connected" type="b" access="read"/>
+
+    <!--
+        Security mode.
+
+        Value      Meaning
+        ""         No security.
+        "wep"      WEP.
+        "wpa-psk"  WPA-PSK (WPA-Personal).
+        "wpa-eap"  WPA-EAP (WPA-Enterprise/WPA-802.1X).
+    -->
+    <property name="Security" type="s" access="read"/>
   </interface>
 
 </node>

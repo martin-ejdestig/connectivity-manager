@@ -15,7 +15,9 @@
 
 #include <cstdint>
 #include <map>
+#include <vector>
 
+#include "daemon/backend.h"
 #include "generated/dbus/connman_proxy.h"
 
 namespace ConnectivityManager::Daemon
@@ -37,6 +39,7 @@ namespace ConnectivityManager::Daemon
     {
     public:
         using PropertyMap = std::map<Glib::ustring, Glib::VariantBase>;
+        using Security = std::vector<Glib::ustring>;
         using Strength = std::uint8_t;
 
         enum class Type
@@ -62,6 +65,7 @@ namespace ConnectivityManager::Daemon
         enum class PropertyId
         {
             NAME,
+            SECURITY,
             STATE,
             STRENGTH
         };
@@ -80,11 +84,37 @@ namespace ConnectivityManager::Daemon
 
         void properties_changed(const PropertyMap &properties);
 
-        Type type() const;
+        Type type() const
+        {
+            return type_;
+        }
 
-        const Glib::ustring &name() const;
-        State state() const;
-        Strength strength() const;
+        const Glib::ustring &name() const
+        {
+            return name_;
+        }
+
+        const Security &security() const
+        {
+            return security_;
+        }
+
+        Backend::WiFiSecurity security_to_wifi_security() const;
+
+        State state() const
+        {
+            return state_;
+        }
+
+        bool state_to_connected() const
+        {
+            return state_ == State::READY || state_ == State::ONLINE;
+        }
+
+        Strength strength() const
+        {
+            return strength_;
+        }
 
         void connect();
         void disconnect();
@@ -107,6 +137,7 @@ namespace ConnectivityManager::Daemon
         const Type type_ = Type::UNKNOWN;
 
         Glib::ustring name_;
+        Security security_;
         State state_ = State::IDLE;
         Strength strength_ = 0;
     };

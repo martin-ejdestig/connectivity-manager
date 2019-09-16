@@ -18,14 +18,6 @@
 
 namespace ConnectivityManager::Daemon
 {
-    namespace
-    {
-        bool service_state_to_connected(ConnManService::State state)
-        {
-            return state == ConnManService::State::READY || state == ConnManService::State::ONLINE;
-        }
-    }
-
     ConnManBackend::ConnManBackend() = default;
 
     ConnManBackend::~ConnManBackend() = default;
@@ -44,7 +36,8 @@ namespace ConnectivityManager::Daemon
                     ap.id = wifi_access_point_next_id();
                     ap.ssid = service.name();
                     ap.strength = service.strength();
-                    ap.connected = service_state_to_connected(service.state());
+                    ap.connected = service.state_to_connected();
+                    ap.security = service.security_to_wifi_security();
 
                     wifi_service_to_ap_id_.emplace(&service, ap.id);
                 }
@@ -345,7 +338,8 @@ namespace ConnectivityManager::Daemon
             ap.id = wifi_access_point_next_id();
             ap.ssid = service.name();
             ap.strength = service.strength();
-            ap.connected = service_state_to_connected(service.state());
+            ap.connected = service.state_to_connected();
+            ap.security = service.security_to_wifi_security();
 
             wifi_service_to_ap_id_.emplace(&service, ap.id);
 
@@ -361,8 +355,11 @@ namespace ConnectivityManager::Daemon
             case ConnManService::PropertyId::NAME:
                 wifi_access_point_ssid_set(*ap, service.name());
                 break;
+            case ConnManService::PropertyId::SECURITY:
+                wifi_access_point_security_set(*ap, service.security_to_wifi_security());
+                break;
             case ConnManService::PropertyId::STATE:
-                wifi_access_point_connected_set(*ap, service_state_to_connected(service.state()));
+                wifi_access_point_connected_set(*ap, service.state_to_connected());
                 break;
             case ConnManService::PropertyId::STRENGTH:
                 wifi_access_point_strength_set(*ap, service.strength());

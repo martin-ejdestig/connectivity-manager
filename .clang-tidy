@@ -1,4 +1,3 @@
----
 Checks: "\
 android-cloexec-*,\
 bugprone-*,\
@@ -20,9 +19,12 @@ google-global-names-in-headers,\
 google-readability-casting,\
 misc-*,\
 modernize-*,\
+-modernize-avoid-c-arrays,\
 -modernize-pass-by-value,\
+-modernize-use-nodiscard,\
 performance-*,\
 readability-*,\
+-readability-magic-numbers,\
 "
 
 HeaderFilterRegex: '^include/|^src/'
@@ -88,5 +90,4 @@ CheckOptions:
     value: '1'
   - key:   readability-implicit-bool-conversion.AllowPointerConditions
     value: '1'
-...
 
