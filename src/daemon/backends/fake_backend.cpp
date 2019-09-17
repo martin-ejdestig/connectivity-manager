@@ -45,8 +45,8 @@ namespace ConnectivityManager::Daemon
             ap.strength = 100 - i;
             ap.connected = false;
 
-            if (i == 1) {
-                ap.ssid += " - Will ask for pwd";
+            if (i == 1 || i == 3) {
+                ap.ssid += " - Will ask for pwd (" + std::to_string(i) + ")";
                 ap.security = WiFiSecurity::WPA_PSK;
                 request_pwd_info_.ids.insert(ap.id);
             }
