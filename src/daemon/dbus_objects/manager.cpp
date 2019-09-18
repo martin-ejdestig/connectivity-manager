@@ -360,6 +360,8 @@ namespace ConnectivityManager::Daemon
             proxy->RequestCredentials_finish(dbus_value, result);
         } catch (const Glib::Error &e) {
             g_warning("RequestCredentials() for %s failed: %s", object.c_str(), e.what().c_str());
+        } catch (const std::exception &e) {
+            g_warning("RequestCredentials() for %s failed: %s", object.c_str(), e.what());
         }
 
         PendingConnect *pending = find(object);
