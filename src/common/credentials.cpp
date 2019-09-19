@@ -98,6 +98,8 @@ namespace ConnectivityManager::Common
 
     std::optional<Credentials> Credentials::from_dbus_value(const DBusValue &dbus_value)
     {
+        g_message("Credentials::from_dbus_value()");
+
         if (dbus_value.empty()) {
             g_warning("Credentials D-Bus value must contain at least one entry");
             return {};
@@ -106,6 +108,8 @@ namespace ConnectivityManager::Common
         Credentials credentials;
 
         for (const auto &[type, variant] : dbus_value) {
+            g_message("    type=%s, variant=%s", type.c_str(), variant.print(true).c_str());
+
             if (type == VALUE_TYPE_SSID_STR) {
                 credentials.ssid = value_from_variant<std::string>(variant, type);
                 if (!credentials.ssid)
