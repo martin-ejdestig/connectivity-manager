@@ -158,6 +158,9 @@ namespace ConnectivityManager::Common
             dbus_value.emplace(VALUE_TYPE_PASSWORD_ALTERNATIVE_STR,
                                password_to_variant(*credentials.password_alternative));
 
+        auto v = Glib::Variant<std::map<Glib::ustring, Glib::VariantBase>>::create(dbus_value);
+        g_message("Will send requested=%s", v.print(true).c_str());
+
         return dbus_value;
     }
 }
