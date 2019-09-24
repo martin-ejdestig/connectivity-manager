@@ -40,8 +40,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_status_set(WiFiStatus status)
     {
-        if (state_.wifi.status == status)
+        if (state_.wifi.status == status) {
             return;
+        }
 
         state_.wifi.status = status;
         signals_.wifi.status_changed.emit(status);
@@ -52,11 +53,13 @@ namespace ConnectivityManager::Daemon
         while (true) {
             wifi_access_point_last_id_++;
 
-            if (wifi_access_point_last_id_ == WiFiAccessPoint::ID_EMPTY)
+            if (wifi_access_point_last_id_ == WiFiAccessPoint::ID_EMPTY) {
                 wifi_access_point_last_id_++;
+            }
 
-            if (!wifi_access_point_find(wifi_access_point_last_id_))
+            if (!wifi_access_point_find(wifi_access_point_last_id_)) {
                 break;
+            }
         }
 
         return wifi_access_point_last_id_;
@@ -85,8 +88,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_access_points_remove_all()
     {
-        if (state_.wifi.access_points.empty())
+        if (state_.wifi.access_points.empty()) {
             return;
+        }
 
         state_.wifi.access_points.clear();
 
@@ -107,8 +111,9 @@ namespace ConnectivityManager::Daemon
     void Backend::wifi_access_point_remove(const WiFiAccessPoint &access_point)
     {
         auto i = state_.wifi.access_points.find(access_point.id);
-        if (i == state_.wifi.access_points.cend())
+        if (i == state_.wifi.access_points.cend()) {
             return;
+        }
 
         const WiFiAccessPoint copy = std::move(i->second);
         state_.wifi.access_points.erase(i);
@@ -118,8 +123,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_access_point_ssid_set(WiFiAccessPoint &access_point, const std::string &ssid)
     {
-        if (access_point.ssid == ssid)
+        if (access_point.ssid == ssid) {
             return;
+        }
 
         access_point.ssid = ssid;
         signals_.wifi.access_points_changed.emit(WiFiAccessPoint::Event::SSID_CHANGED,
@@ -129,8 +135,9 @@ namespace ConnectivityManager::Daemon
     void Backend::wifi_access_point_strength_set(WiFiAccessPoint &access_point,
                                                  WiFiAccessPoint::Strength strength)
     {
-        if (access_point.strength == strength)
+        if (access_point.strength == strength) {
             return;
+        }
 
         access_point.strength = strength;
         signals_.wifi.access_points_changed.emit(WiFiAccessPoint::Event::STRENGTH_CHANGED,
@@ -139,8 +146,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_access_point_connected_set(WiFiAccessPoint &access_point, bool connected)
     {
-        if (access_point.connected == connected)
+        if (access_point.connected == connected) {
             return;
+        }
 
         access_point.connected = connected;
         signals_.wifi.access_points_changed.emit(WiFiAccessPoint::Event::CONNECTED_CHANGED,
@@ -150,8 +158,9 @@ namespace ConnectivityManager::Daemon
     void Backend::wifi_access_point_security_set(WiFiAccessPoint &access_point,
                                                  WiFiSecurity security)
     {
-        if (access_point.security == security)
+        if (access_point.security == security) {
             return;
+        }
 
         access_point.security = security;
         signals_.wifi.access_points_changed.emit(WiFiAccessPoint::Event::SECURITY_CHANGED,
@@ -160,8 +169,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_hotspot_status_set(WiFiHotspotStatus status)
     {
-        if (state_.wifi.hotspot_status == status)
+        if (state_.wifi.hotspot_status == status) {
             return;
+        }
 
         state_.wifi.hotspot_status = status;
         signals_.wifi.hotspot_status_changed.emit(status);
@@ -169,8 +179,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_hotspot_ssid_set(const std::string &ssid)
     {
-        if (state_.wifi.hotspot_ssid == ssid)
+        if (state_.wifi.hotspot_ssid == ssid) {
             return;
+        }
 
         state_.wifi.hotspot_ssid = ssid;
         signals_.wifi.hotspot_ssid_changed.emit(ssid);
@@ -178,8 +189,9 @@ namespace ConnectivityManager::Daemon
 
     void Backend::wifi_hotspot_passphrase_set(const Glib::ustring &passphrase)
     {
-        if (state_.wifi.hotspot_passphrase == passphrase)
+        if (state_.wifi.hotspot_passphrase == passphrase) {
             return;
+        }
 
         state_.wifi.hotspot_passphrase = passphrase;
         signals_.wifi.hotspot_passphrase_changed.emit(passphrase);
