@@ -163,6 +163,15 @@ namespace ConnectivityManager::Cli
         Common::Credentials credentials = InputHandler::instance().prompt_for_credentials(
             description_type, description_id, *requested_credentials);
 
+        // Ugly to ask this at end instead of for each prompt, but it is just a hack for being able
+        // to test. Hack hack hack...
+        auto cancel = prompt_for_value("Cancel [y/n]?", "n");
+        if (cancel == "y" || cancel =="Y") {
+            invocation.ret(
+                Gio::DBus::Error(Gio::DBus::Error::FAILED, "Request for credentials cancelled"));
+            return;
+        }
+
         invocation.ret(Common::Credentials::to_dbus_value(credentials));
     }
 }
